@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Чередование гласных в корне слова</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Patrick Hand', cursive;
+            background: #f5f0e1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            margin: 0;
+        }
+
+        .game-container {
+            max-width: 780px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 28px 26px 32px;
+            box-shadow: 0 8px 30px rgba(74, 103, 65, 0.15);
+            position: relative;
+            border: 2px dashed #a8c49a;
+            min-height: 560px;
+        }
+
+        /* ===== SCREENS ===== */
+        .screen {
+            display: none;
+            animation: fadeIn 0.45s ease forwards;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.85);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.04);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-10px);
+            }
+            40% {
+                transform: translateX(10px);
+            }
+            60% {
+                transform: translateX(-6px);
+            }
+            80% {
+                transform: translateX(6px);
+            }
+        }
+
+        @keyframes starSpin {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+            50% {
+                transform: rotate(180deg) scale(1.3);
+            }
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes confettiFall {
+            0% {
+                opacity: 1;
+                transform: translateY(-40px) rotate(0deg) scale(0.6);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(400px) rotate(720deg) scale(1.2);
+            }
+        }
+
+        .confetti-piece {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            z-index: 999;
+            pointer-events: none;
+            animation: confettiFall 2.2s ease-in forwards;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1,
+        h2,
+        h3,
+        .formula {
+            font-family: 'Caveat', cursive;
+            font-weight: 700;
+            color: #4a6741;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            line-height: 1.2;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+        }
+
+        h3 {
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.25rem;
+            color: #6b8f5e;
+        }
+
+        .text-main {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
+            color: #2d3d29;
+            line-height: 1.6;
+        }
+
+        .text-small {
+            font-size: 1rem;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.25rem;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            box-shadow: 3px 3px 0 #4a6741;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #6b8f5e;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 5px 0 #4a6741;
+            background: #5f7f53;
+        }
+        .btn-primary:active {
+            transform: translateY(2px);
+            box-shadow: 1px 1px 0 #4a6741;
+        }
+
+        .btn-secondary {
+            background: #c8d9b8;
+            color: #4a6741;
+            box-shadow: 3px 3px 0 #8aaa7a;
+        }
+        .btn-secondary:hover {
+            background: #b8ccaa;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #4a6741;
+            border: 2px solid #a8c49a;
+            box-shadow: 3px 3px 0 #a8c49a;
+        }
+        .btn-outline:hover {
+            background: #f5f0e1;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: #fff;
+            box-shadow: 3px 3px 0 #2e7d32;
+        }
+        .btn-success:hover {
+            background: #43a047;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+            box-shadow: 3px 3px 0 #b03a2e;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-check {
+            min-width: 120px;
+        }
+
+        .btn-next {
+            min-width: 120px;
+            background: #6b8f5e;
+            color: #fff;
+            box-shadow: 3px 3px 0 #4a6741;
+        }
+        .btn-next:hover:not(:disabled) {
+            background: #5f7f53;
+            transform: translateY(-2px);
+        }
+        .btn-next:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            background: #e8e0d0;
+            color: #4a6741;
+            box-shadow: 3px 3px 0 #b8b0a0;
+            min-width: 80px;
+        }
+        .btn-back:hover {
+            background: #ddd5c5;
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-wrap {
+            overflow-x: auto;
+            padding: 6px 0 14px 0;
+            margin-bottom: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: #a8c49a #f5f0e1;
+            -webkit-overflow-scrolling: touch;
+        }
+        .progress-wrap::-webkit-scrollbar {
+            height: 4px;
+        }
+        .progress-wrap::-webkit-scrollbar-track {
+            background: #f5f0e1;
+            border-radius: 6px;
+        }
+        .progress-wrap::-webkit-scrollbar-thumb {
+            background: #a8c49a;
+            border-radius: 6px;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            min-width: max-content;
+            padding: 0 8px;
+        }
+
+        .dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #c8d9b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #4a6741;
+            border: 2px solid #a8c49a;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .dot.active {
+            background: #6b8f5e;
+            color: #fff;
+            border-color: #4a6741;
+            transform: scale(1.18);
+            box-shadow: 0 0 0 3px #c8d9b8;
+        }
+
+        .dot.done {
+            background: #6b8f5e;
+            color: #fff;
+            border-color: #4a6741;
+        }
+        .dot.done::after {
+            content: '✓';
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .dot.done .dot-num {
+            display: none;
+        }
+        .dot .dot-num {
+            font-size: 0.9rem;
+        }
+
+        /* ===== THEORY ===== */
+        .theory-card {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 20px 22px;
+            margin-bottom: 16px;
+            border: 2px dashed #a8c49a;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .theory-card::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 24px;
+            width: 40px;
+            height: 18px;
+            background: rgba(255, 193, 7, 0.35);
+            border-radius: 2px;
+            transform: rotate(-6deg);
+            filter: blur(0.5px);
+            border: 1px solid rgba(200, 150, 50, 0.2);
+        }
+
+        .theory-card .rule-title {
+            font-family: 'Caveat', cursive;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4a6741;
+            margin-bottom: 4px;
+        }
+
+        .theory-card .rule-example {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.1rem;
+            color: #2d3d29;
+            background: #f5f0e1;
+            padding: 6px 14px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        .theory-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .theory-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== INFO BOX (hint) ===== */
+        .info-box {
+            background: #fff8e1;
+            border-left: 6px solid #ffc107;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin: 14px 0 18px 0;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.05rem;
+            color: #3d3a2a;
+            box-shadow: 0 2px 6px rgba(255, 193, 7, 0.15);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .info-box .icon {
+            font-size: 1.6rem;
+            line-height: 1.2;
+            flex-shrink: 0;
+        }
+
+        /* ===== EXERCISE ===== */
+        .ex-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ex-number {
+            font-family: 'Caveat', cursive;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #6b8f5e;
+            background: #c8d9b8;
+            padding: 2px 16px;
+            border-radius: 30px;
+        }
+
+        .ex-question {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.25rem;
+            color: #2d3d29;
+            margin: 8px 0 14px 0;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 12px 0 16px 0;
+        }
+
+        .option-btn {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.1rem;
+            padding: 12px 22px;
+            border-radius: 14px;
+            border: 2.5px solid #a8c49a;
+            background: #ffffff;
+            color: #2d3d29;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 2px 2px 0 rgba(168, 196, 154, 0.3);
+            flex: 1 0 auto;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .option-btn:hover:not(.selected) {
+            background: #f5f0e1;
+            border-color: #6b8f5e;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.selected {
+            border-color: #4a6741;
+            background: #c8d9b8;
+            box-shadow: 3px 3px 0 #4a6741;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct-reveal {
+            border-color: #4caf50;
+            background: #c8f0c0;
+            box-shadow: 3px 3px 0 #2e7d32;
+        }
+
+        .option-btn.wrong-reveal {
+            border-color: #e74c3c;
+            background: #fdd0cc;
+            box-shadow: 3px 3px 0 #b03a2e;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 0.85;
+        }
+
+        .feedback {
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin: 12px 0 16px 0;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.1rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            color: #1e4a1e;
+        }
+
+        .feedback.wrong {
+            background: #fdecea;
+            border: 2px solid #e74c3c;
+            color: #6d1a1a;
+            animation: shake 0.45s ease;
+        }
+
+        .feedback .fb-icon {
+            font-size: 1.6rem;
+            margin-right: 8px;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .nav-row .right-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== TITLE SCREEN ===== */
+        .title-icon {
+            font-size: 3.8rem;
+            text-align: center;
+            margin-bottom: 4px;
+            letter-spacing: 6px;
+        }
+
+        .title-deco {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            font-size: 2rem;
+            color: #a8c49a;
+            margin: 6px 0 10px 0;
+        }
+
+        .title-deco span {
+            display: inline-block;
+            animation: spin 12s linear infinite;
+        }
+        .title-deco span:nth-child(2) {
+            animation-duration: 16s;
+            animation-direction: reverse;
+        }
+        .title-deco span:nth-child(3) {
+            animation-duration: 10s;
+        }
+
+        .btn-start {
+            font-size: 1.6rem;
+            padding: 16px 48px;
+            border-radius: 30px;
+            background: #6b8f5e;
+            color: #fff;
+            box-shadow: 4px 5px 0 #4a6741;
+            border: none;
+            cursor: pointer;
+            font-family: 'Patrick Hand', cursive;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 5px 7px 0 #4a6741;
+            background: #5f7f53;
+        }
+        .btn-start:active {
+            transform: translateY(3px);
+            box-shadow: 1px 1px 0 #4a6741;
+        }
+
+        .title-sub {
+            font-size: 1.2rem;
+            color: #6b8f5e;
+            margin-top: 4px;
+            font-family: 'Patrick Hand', cursive;
+        }
+
+        /* ===== RESULTS ===== */
+        .result-stars {
+            font-size: 3.8rem;
+            text-align: center;
+            letter-spacing: 12px;
+            margin: 8px 0 4px 0;
+        }
+
+        .result-stars .star {
+            display: inline-block;
+            transition: all 0.4s;
+        }
+        .result-stars .star.active {
+            animation: starSpin 0.8s ease;
+        }
+        .result-stars .star.inactive {
+            opacity: 0.25;
+            filter: grayscale(0.6);
+        }
+
+        .result-score {
+            font-family: 'Caveat', cursive;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #4a6741;
+            text-align: center;
+        }
+
+        .result-msg {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.3rem;
+            text-align: center;
+            padding: 16px 20px;
+            background: #f5f0e1;
+            border-radius: 15px;
+            border: 2px dashed #a8c49a;
+            margin: 14px 0 20px 0;
+            color: #2d3d29;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 18px 14px 22px;
+                border-radius: 14px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+            h2 {
+                font-size: 1.8rem;
+            }
+            .subtitle {
+                font-size: 1.05rem;
+            }
+
+            .btn {
+                font-size: 1.05rem;
+                padding: 10px 20px;
+            }
+            .btn-start {
+                font-size: 1.3rem;
+                padding: 14px 32px;
+            }
+
+            .dot {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+            .progress-dots {
+                gap: 6px;
+            }
+
+            .option-btn {
+                font-size: 1rem;
+                padding: 10px 16px;
+                flex: 1 1 100%;
+            }
+            .options {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-row .right-group {
+                justify-content: center;
+            }
+
+            .theory-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ex-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .result-stars {
+                font-size: 2.8rem;
+                letter-spacing: 8px;
+            }
+            .result-score {
+                font-size: 2.4rem;
+            }
+
+            .info-box {
+                font-size: 0.95rem;
+                padding: 12px 14px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .game-container {
+                padding: 12px 10px 16px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .dot {
+                width: 28px;
+                height: 28px;
+                font-size: 0.7rem;
+            }
+            .btn {
+                font-size: 0.95rem;
+                padding: 8px 16px;
+            }
+        }
+
+        /* ===== UTILITY ===== */
+        .text-center {
+            text-align: center;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mt-12 {
+            margin-top: 12px;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .flex-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* декоративный скотч на теории */
+        .tape {
+            position: relative;
+        }
+        .tape::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 30px;
+            width: 44px;
+            height: 16px;
+            background: rgba(255, 193, 7, 0.30);
+            border-radius: 2px;
+            transform: rotate(-4deg);
+            border: 1px solid rgba(200, 150, 50, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container" id="app">
+
+        <!-- ========== TITLE SCREEN ========== -->
+        <div class="screen active" id="screen-title">
+            <div class="title-icon">📝</div>
+            <div class="title-deco">
+                <span>✦</span>
+                <span>⚙️</span>
+                <span>★</span>
+            </div>
+            <h1 class="text-center" style="font-size:2.8rem;">Чередование<br>гласных в корне</h1>
+            <p class="text-center subtitle" style="font-size:1.2rem;">10 заданий · проверь свои знания</p>
+            <div class="flex-center mt-16">
+                <button class="btn-start" onclick="showScreen('screen-theory')">🚀 Начать</button>
+            </div>
+            <p class="text-center text-small mt-12" style="color:#8aaa7a;">✏️ 6–9 классы · русский язык</p>
+        </div>
+
+        <!-- ========== THEORY SCREEN ========== -->
+        <div class="screen" id="screen-theory">
+            <h2 class="text-center" style="margin-bottom:8px;">📖 Правила</h2>
+            <p class="text-center subtitle" style="margin-bottom:14px;">Кратко о главном</p>
+
+            <div class="theory-grid">
+                <div class="theory-card tape">
+                    <div class="rule-title">—раст- / —ращ- / —рос-</div>
+                    <p class="text-main text-small">Перед <strong>СТ</strong> и <strong>Щ</strong> → <strong>А</strong><br>Перед <strong>С</strong> → <strong>О</strong></p>
+                    <span class="rule-example">выр<u>а</u>щенный · р<u>о</u>сли</span>
+                </div>
+
+                <div class="theory-card tape">
+                    <div class="rule-title">—лаг- / —лож-</div>
+                    <p class="text-main text-small">Перед <strong>Г</strong> → <strong>А</strong><br>Перед <strong>Ж</strong> → <strong>О</strong></p>
+                    <span class="rule-example">пол<u>а</u>гать · изл<u>о</u>жение</span>
+                </div>
+
+                <div class="theory-card tape">
+                    <div class="rule-title">—гар- / —гор-</div>
+                    <p class="text-main text-small">Под ударением → <strong>А</strong><br>Без ударения → <strong>О</strong></p>
+                    <span class="rule-example">з<u>а</u>гар · заг<u>о</u>реть</span>
+                </div>
+
+                <div class="theory-card tape">
+                    <div class="rule-title">—зар- / —зор-</div>
+                    <p class="text-main text-small">Без ударения → <strong>А</strong><br>Под ударением → <strong>О</strong></p>
+                    <span class="rule-example">з<u>а</u>ря · з<u>о</u>рька</span>
+                </div>
+
+                <div class="theory-card tape">
+                    <div class="rule-title">—плав- / —плов-</div>
+                    <p class="text-main text-small">В основном → <strong>А</strong><br>Исключения: <strong>пловец, пловчиха</strong></p>
+                    <span class="rule-example">пл<u>а</u>вать · пл<u>о</u>вец</span>
+                </div>
+
+                <div class="theory-card tape">
+                    <div class="rule-title">—равн- / —ровн-</div>
+                    <p class="text-main text-small"><strong>А</strong> = «равный, одинаковый»<br><strong>О</strong> = «гладкий, ровный»</p>
+                    <span class="rule-example">р<u>а</u>внение · р<u>о</u>вный</span>
+                </div>
+
+                <div class="theory-card tape">
+                    <div class="rule-title">—бир- / —бер- <br>—пир- / —пер- и др.</div>
+                    <p class="text-main text-small">Если после корня есть <strong>—а—</strong> → <strong>И</strong><br>Иначе → <strong>Е</strong></p>
+                    <span class="rule-example">соб<u>и</u>рать · соб<u>е</u>ру</span>
+                </div>
+
+                <div class="theory-card tape">
+                    <div class="rule-title">—блист- / —блест-</div>
+                    <p class="text-main text-small">Если есть <strong>—а—</strong> → <strong>И</strong><br>Иначе → <strong>Е</strong></p>
+                    <span class="rule-example">бл<u>и</u>стать · бл<u>е</u>стеть</span>
+                </div>
+            </div>
+
+            <div class="flex-center mt-16">
+                <button class="btn btn-primary" onclick="startGame()">📝 К заданиям</button>
+            </div>
+        </div>
+
+        <!-- ========== EXERCISE SCREENS (ex1–ex10) ========== -->
+        <div id="exercise-container"></div>
+
+        <!-- ========== RESULTS SCREEN ========== -->
+        <div class="screen" id="screen-results">
+            <h2 class="text-center">🏆 Результат</h2>
+            <div class="result-stars" id="resultStars"></div>
+            <div class="result-score" id="resultScore">0 / 10</div>
+            <div class="result-msg" id="resultMsg">Отличная работа!</div>
+            <div class="flex-center mt-12" style="gap:14px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="restartGame()">🔄 Пройти ещё раз</button>
+                <button class="btn btn-secondary" onclick="showScreen('screen-title')">🏠 На главную</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ============================================================
+        //  DATA: 10 заданий (подсказки очищены от тегов   и  )
+        // ============================================================
+        const exercises = [{
+            id: 1,
+            type: 'choice',
+            question: 'Вставь пропущенную букву в слово «Выр…щенный» ',
+            options: ['А', 'О'],
+            correct: 0,
+            hint: 'В корне -раст-/-ращ- перед Щ пишется А.',
+            explanation: 'Правильно! В корне -ращ- перед Щ пишется А: выращенный.',
+            wrongExplanation: 'Неверно. В корне  -ращ-  перед  Щ  пишется  А : <i>выр<u>а</u>щенный</i>.'
+        }, {
+            id: 2,
+            type: 'choice',
+            question: 'Вставь пропущенную букву в слово  «Изл…жение» ',
+            options: ['А', 'О'],
+            correct: 1,
+            hint: 'В корне -лаг-/-лож- перед Ж пишется О.',
+            explanation: 'Верно! Перед  Ж  пишется  О : <i>изл<u>о</u>жение</i>.',
+            wrongExplanation: 'Неверно. Перед  Ж  пишется  О : <i>изл<u>о</u>жение</i>.'
+        }, {
+            id: 3,
+            type: 'choice',
+            question: 'Выбери слово с  правильным  написанием:',
+            options: ['загорать', 'загарать', 'загороть'],
+            correct: 0,
+            hint: 'В корне -гар-/-гор- без ударения пишется О.',
+            explanation: 'Правильно! <i>заг<u>о</u>рать</i> — без ударения пишется  О .',
+            wrongExplanation: 'Неверно. Правильно: <i>заг<u>о</u>рать</i> (без ударения  О ).'
+        }, {
+            id: 4,
+            type: 'choice',
+            question: 'Выбери  правильное  утверждение о чередовании в корне  -зар-/-зор- :',
+            options: [
+                'Под ударением О, без ударения А',
+                'Под ударением А, без ударения О',
+                'Всегда пишется А'
+            ],
+            correct: 0,
+            hint: 'В корне -зар-/-зор- под ударением пишется О, без ударения — А.',
+            explanation: 'Верно! <i>з<u>о</u>рька</i> (под ударением О), <i>з<u>а</u>ря</i> (без ударения А).',
+            wrongExplanation: 'Неверно. Правило: под ударением  О , без ударения  А .'
+        }, {
+            id: 5,
+            type: 'choice',
+            question: 'Какое слово является  исключением  из правила чередования  -плав-/-плов- ?',
+            options: ['плавать', 'пловец', 'поплавок'],
+            correct: 1,
+            hint: 'Исключения: пловец, пловчиха.',
+            explanation: 'Верно! <i>пл<u>о</u>вец</i> — исключение, пишется с  О .',
+            wrongExplanation: 'Неверно. Исключение — <i>пл<u>о</u>вец</i> (пишется с  О ).'
+        }, {
+            id: 6,
+            type: 'choice',
+            question: 'В корне  -равн-  пишется  А , если слово означает…',
+            options: [
+                '«гладкий, ровный»',
+                '«равный, одинаковый»',
+                '«влажный, мокрый»'
+            ],
+            correct: 1,
+            hint: '-равн- = «равный, одинаковый»; -ровн- = «гладкий, ровный».',
+            explanation: 'Правильно! <i>р<u>а</u>внение</i> — «равный, одинаковый».',
+            wrongExplanation: 'Неверно.  -равн-  означает «равный, одинаковый».'
+        }, {
+            id: 7,
+            type: 'choice',
+            question: 'В каком слове корень  с чередованием  гласных?',
+            options: ['гореть', 'гора', 'горный'],
+            correct: 0,
+            hint: 'Чередование -гар-/-гор-: под ударением А, без ударения О.',
+            explanation: 'Верно! <i>г<u>о</u>реть</i> — корень  -гор-  (чередуется с  -гар- ).',
+            wrongExplanation: 'Неверно. В слове <i>г<u>о</u>реть</i> корень  -гор-  с чередованием.'
+        }, {
+            id: 8,
+            type: 'choice',
+            question: 'Вставь пропущенную букву:  «Соб…раться» ',
+            options: ['И', 'Е'],
+            correct: 0,
+            hint: 'Если после корня есть суффикс -а-, пишется И.',
+            explanation: 'Верно! <i>соб<u>и</u>раться</i> — есть суффикс  -а- , пишем  И .',
+            wrongExplanation: 'Неверно. Есть суффикс  -а- , поэтому <i>соб<u>и</u>раться</i>.'
+        }, {
+            id: 9,
+            type: 'choice',
+            question: 'В слове  «Зап…реть»  пишется…',
+            options: ['И', 'Е'],
+            correct: 1,
+            hint: 'Если после корня нет суффикса -а-, пишется Е.',
+            explanation: 'Правильно! <i>зап<u>е</u>реть</i> — нет суффикса  -а- , пишем  Е .',
+            wrongExplanation: 'Неверно. Нет суффикса  -а- , поэтому <i>зап<u>е</u>реть</i>.'
+        }, {
+            id: 10,
+            type: 'choice',
+            question: 'В каком слове пишется буква  И ?',
+            options: ['выб…ру', 'выб…рать', 'заб…ру'],
+            correct: 1,
+            hint: 'В корне -бир-/-бер- пишется И, если есть суффикс -а-.',
+            explanation: 'Верно! <i>выб<u>и</u>рать</i> — есть суффикс  -а- , пишем  И .',
+            wrongExplanation: 'Неверно. <i>выб<u>и</u>рать</i> — есть суффикс  -а- , пишем  И .'
+        }];
+
+        // ============================================================
+        //  STATE
+        // ============================================================
+        let currentScreen = 'screen-title';
+        let currentExIndex = 0; // 0-based
+        const exDone = new Array(10).fill(false);
+        let score = 0;
+        let answered = false; // для текущего задания
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const container = document.getElementById('exercise-container');
+
+        // ============================================================
+        //  RENDER EXERCISES
+        // ============================================================
+        function renderAllExercises() {
+            let html = '';
+            exercises.forEach((ex, idx) => {
+                const num = idx + 1;
+                let optsHtml = ex.options.map((opt, oi) => `
+                    <button class="option-btn" data-ex="${idx}" data-opt="${oi}" onclick="selectOption(${idx}, ${oi})">
+                        ${opt}
+                    </button>
+                `).join('');
+
+                html += `
+                <div class="screen" id="screen-ex${num}">
+                    <div class="progress-wrap">
+                        <div class="progress-dots" id="dots-ex${num}"></div>
+                    </div>
+
+                    <div class="ex-header">
+                        <span class="ex-number">Задание ${num} / 10</span>
+                        <span style="font-size:1rem;color:#6b8f5e;">⭐ ${score}</span>
+                    </div>
+
+                    <p class="ex-question">${ex.question}</p>
+
+                    <div class="options" id="options-ex${num}">
+                        ${optsHtml}
+                    </div>
+
+                    <div class="info-box">
+                        <span class="icon">💡</span>
+                        <span>${ex.hint}</span>
+                    </div>
+
+                    <div class="feedback" id="feedback-ex${num}"></div>
+
+                    <div class="nav-row">
+                        <button class="btn btn-back" onclick="goBack()">← Назад</button>
+                        <div class="right-group">
+                            <button class="btn btn-check btn-primary" id="check-ex${num}" onclick="checkAnswer(${idx})">
+                                ✅ Проверить
+                            </button>
+                            <button class="btn btn-next" id="next-ex${num}" disabled onclick="goNext()">
+                                Далее →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            container.innerHTML = html;
+
+            // Прогресс-точки для каждого экрана
+            for (let i = 0; i < 10; i++) {
+                const dotsContainer = document.getElementById(`dots-ex${i+1}`);
+                if (dotsContainer) {
+                    dotsContainer.innerHTML = renderDots(i);
+                }
+            }
+        }
+
+        function renderDots(activeIdx) {
+            let html = '';
+            for (let i = 0; i < 10; i++) {
+                let cls = 'dot';
+                if (i === activeIdx) cls += ' active';
+                else if (exDone[i]) cls += ' done';
+                let label = exDone[i] ? '' : `<span class="dot-num">${i+1}</span>`;
+                html += `<div class="${cls}">${label}</div>`;
+            }
+            return html;
+        }
+
+        // ============================================================
+        //  NAVIGATION
+        // ============================================================
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(id);
+            if (target) target.classList.add('active');
+            currentScreen = id;
+            // обновляем точки если это экран задания
+            if (id.startsWith('screen-ex')) {
+                const num = parseInt(id.replace('screen-ex', ''));
+                const idx = num - 1;
+                updateDots(idx);
+                // сброс состояния ответа при переходе
+                answered = false;
+                const fb = document.getElementById(`feedback-ex${num}`);
+                if (fb) { fb.classList.remove('show', 'correct', 'wrong');
+                    fb.textContent = ''; }
+                const checkBtn = document.getElementById(`check-ex${num}`);
+                if (checkBtn) checkBtn.disabled = false;
+                // сброс выделения опций
+                document.querySelectorAll(`#options-ex${num} .option-btn`).forEach(b => {
+                    b.classList.remove('selected', 'correct-reveal', 'wrong-reveal');
+                    b.disabled = false;
+                });
+                // скрываем "Далее"
+                const nextBtn = document.getElementById(`next-ex${num}`);
+                if (nextBtn) nextBtn.disabled = true;
+                // обновляем счёт в заголовке
+                const header = document.querySelector(`#screen-ex${num} .ex-header span:last-child`);
+                if (header) header.textContent = `⭐ ${score}`;
+            }
+            if (id === 'screen-results') {
+                showResults();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateDots(activeIdx) {
+            const container = document.getElementById(`dots-ex${activeIdx+1}`);
+            if (container) {
+                container.innerHTML = renderDots(activeIdx);
+            }
+        }
+
+        // Обновить все точки (глобально)
+        function updateAllDots() {
+            for (let i = 0; i < 10; i++) {
+                const container = document.getElementById(`dots-ex${i+1}`);
+                if (container) {
+                    container.innerHTML = renderDots(i);
+                }
+            }
+        }
+
+        function startGame() {
+            currentExIndex = 0;
+            score = 0;
+            for (let i = 0; i < 10; i++) exDone[i] = false;
+            renderAllExercises();
+            showScreen('screen-ex1');
+        }
+
+        function goNext() {
+            if (currentExIndex < 9) {
+                currentExIndex++;
+                const nextId = `screen-ex${currentExIndex+1}`;
+                showScreen(nextId);
+                // обновить счёт во всех экранах
+                updateScoreDisplay();
+            } else {
+                // финиш
+                showScreen('screen-results');
+                showResults();
+            }
+        }
+
+        function goBack() {
+            if (currentExIndex > 0) {
+                currentExIndex--;
+                showScreen(`screen-ex${currentExIndex+1}`);
+            } else {
+                showScreen('screen-theory');
+            }
+        }
+
+        function updateScoreDisplay() {
+            for (let i = 0; i < 10; i++) {
+                const header = document.querySelector(`#screen-ex${i+1} .ex-header span:last-child`);
+                if (header) header.textContent = `⭐ ${score}`;
+            }
+        }
+
+        // ============================================================
+        //  OPTION SELECTION
+        // ============================================================
+        let selectedOption = null;
+
+        function selectOption(exIdx, optIdx) {
+            if (answered) return;
+            const num = exIdx + 1;
+            const btns = document.querySelectorAll(`#options-ex${num} .option-btn`);
+            btns.forEach((b, i) => {
+                b.classList.toggle('selected', i === optIdx);
+            });
+            selectedOption = { exIdx, optIdx };
+        }
+
+        // ============================================================
+        //  CHECK ANSWER
+        // ============================================================
+        function checkAnswer(exIdx) {
+            if (answered) return;
+            const ex = exercises[exIdx];
+            const num = exIdx + 1;
+            const fb = document.getElementById(`feedback-ex${num}`);
+            const checkBtn = document.getElementById(`check-ex${num}`);
+            const nextBtn = document.getElementById(`next-ex${num}`);
+            const btns = document.querySelectorAll(`#options-ex${num} .option-btn`);
+
+            if (selectedOption === null || selectedOption.exIdx !== exIdx) {
+                fb.textContent = '⚠️ Выбери вариант ответа!';
+                fb.className = 'feedback show wrong';
+                return;
+            }
+
+            const isCorrect = (selectedOption.optIdx === ex.correct);
+            const chosenIdx = selectedOption.optIdx;
+
+            // блокируем кнопки
+            btns.forEach(b => b.disabled = true);
+            checkBtn.disabled = true;
+
+            // подсветка
+            btns.forEach((b, i) => {
+                b.classList.remove('selected');
+                if (i === ex.correct) b.classList.add('correct-reveal');
+                if (i === chosenIdx && !isCorrect) b.classList.add('wrong-reveal');
+            });
+
+            if (isCorrect) {
+                if (!exDone[exIdx]) {
+                    exDone[exIdx] = true;
+                    score++;
+                }
+                fb.textContent = `✅ ${ex.explanation}`;
+                fb.className = 'feedback show correct';
+                nextBtn.disabled = false;
+                // анимация звезды
+                updateScoreDisplay();
+                updateAllDots();
+                // если все сделаны
+                if (score === 10) {
+                    setTimeout(() => launchConfetti(), 400);
+                }
+            } else {
+                fb.textContent = `❌ ${ex.wrongExplanation}`;
+                fb.className = 'feedback show wrong';
+                // не разблокируем "Далее"
+                nextBtn.disabled = true;
+                // тряска
+                fb.style.animation = 'none';
+                setTimeout(() => { fb.style.animation = 'shake 0.45s ease'; }, 10);
+            }
+
+            answered = true;
+            // обновить прогресс
+            updateAllDots();
+            updateScoreDisplay();
+
+            // обновить счёт в заголовке
+            const header = document.querySelector(`#screen-ex${num} .ex-header span:last-child`);
+            if (header) header.textContent = `⭐ ${score}`;
+        }
+
+        // ============================================================
+        //  RESULTS
+        // ============================================================
+        function showResults() {
+            const starsContainer = document.getElementById('resultStars');
+            const scoreEl = document.getElementById('resultScore');
+            const msgEl = document.getElementById('resultMsg');
+
+            let starsHtml = '';
+            let activeStars = 0;
+            if (score >= 4) activeStars = 1;
+            if (score >= 7) activeStars = 2;
+            if (score >= 10) activeStars = 3;
+
+            for (let i = 0; i < 3; i++) {
+                const cls = i < activeStars ? 'star active' : 'star inactive';
+                starsHtml += `<span class="${cls}">⭐</span>`;
+            }
+            starsContainer.innerHTML = starsHtml;
+            scoreEl.textContent = `${score} / 10`;
+
+            let msg = '';
+            if (score === 10) msg = '🌟 Идеально! Ты настоящий знаток русского языка! Поздравляем! 🎉';
+            else if (score >= 7) msg = '✨ Отлично! Ты хорошо усвоил тему. Так держать!';
+            else if (score >= 4) msg = '📖 Неплохо! Повтори правила и попробуй ещё раз.';
+            else msg = '💪 Тренируйся! Правила чередования требуют внимания. Попробуй снова!';
+            msgEl.textContent = msg;
+
+            if (score === 10) {
+                setTimeout(() => launchConfetti(), 300);
+                setTimeout(() => launchConfetti(), 900);
+            }
+        }
+
+        // ============================================================
+        //  CONFETTI
+        // ============================================================
+        function launchConfetti() {
+            const colors = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6', '#e67e22', '#1abc9c'];
+            for (let i = 0; i < 38; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-piece';
+                const size = 6 + Math.random() * 12;
+                el.style.width = size + 'px';
+                el.style.height = size * (0.6 + Math.random() * 0.6) + 'px';
+                el.style.background = colors[Math.floor(Math.random() * colors.length)];
+                el.style.left = (10 + Math.random() * 80) + '%';
+                el.style.top = '-10px';
+                el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                el.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+                el.style.animationDelay = (Math.random() * 0.8) + 's';
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 3500);
+            }
+        }
+
+        // ============================================================
+        //  RESTART
+        // ============================================================
+        function restartGame() {
+            score = 0;
+            for (let i = 0; i < 10; i++) exDone[i] = false;
+            selectedOption = null;
+            answered = false;
+            currentExIndex = 0;
+            renderAllExercises();
+            showScreen('screen-ex1');
+            updateScoreDisplay();
+            updateAllDots();
+        }
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        renderAllExercises();
+        showScreen('screen-title');
+        console.log('🎓 Игра "Чередование гласных" загружена!');
+    </script>
+
+</body>
+</html>
